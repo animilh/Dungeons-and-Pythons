@@ -5,7 +5,7 @@ class Dungeon:
 
     def __init__(self, filename):
         self.map = self.load_from_file(filename)
-        self.__current_position = None# the current position of the hero
+        self.__current_position = None
         self.__coords = []
         self.__path = []
         self.ROWS = sum(1 for row in self.map)
@@ -41,8 +41,8 @@ class Dungeon:
     def spawn(self, some_hero):
         for i in range(self.ROWS):
             for j in range(self.COLS):
-                    if self.map[i][j] in ('S', '.'): # the start point
-                        self.map[i][j] = 'H'# position the hero at the start point
+                    if self.map[i][j] in ('S', '.'):
+                        self.map[i][j] = 'H'
                         self.set_curnt_position(i, j)
                         self.__path.append([i, j])
                         break
@@ -92,11 +92,6 @@ class Dungeon:
         return self.treasure_spell[1]
 
 
-
-
-
-#            self.map[self.__coords[0]][self.__coords[1]] = 'H'
-
     def __hero_in_map(self):
         return self.__coords[0] <= self.ROWS - 1 and \
             self.__coords[1] <= self.COLS - 1
@@ -105,23 +100,3 @@ class Dungeon:
         self.map[self.__coords[0]][self.__coords[1]] = 'H'
         self.map[self.__path[len(self.__path) - 1][0]][self.__path[len(self.__path) - 1][1]] = '.'
         self.__path.append(self.__coords)
-
-
-
-
-def main():
-    m = Dungeon('level1.txt')
-    ana = Hero (name="Ana", title="Cloud", health=5000, mana=330, mana_regeneration_rate=7)
-    m.spawn(ana)
-    m.print_map()
-    m.move_hero('right')
-    print(m.move_hero('down'))
-    m.print_map()
-    print(m.get_path())
-    # TREASURES = ['mana', 'health potion', 'weapon', 'spell']
-    # treasure_spell = []
-    # print(choice(Dungeon.TREASURES[:2]))
-    # treasure_spell.insert(0, choice(Dungeon.TREASURES[:2]))#choice(Dungeon.TREASURES[:2])
-    # print treasure_spell
-if __name__ == '__main__':
-    main()
