@@ -10,11 +10,23 @@ class Hero:
         self.title = str(title)
         self.__health = health
         self.__mana = mana
-        self.__mana_regeneration_rate = mana_regeneration_rate
+        self.mana_regeneration_rate = mana_regeneration_rate
         self.spell = None
         self.weapon = None
         self.__initial_health = health
         self.__initial_mana = mana
+        self.treasure_health_mana = ''
+        self.treasure_spell = ''
+
+    def __str__(self):
+        return "Hero(health={}, mana={})".format(self.get_health(), self.get_mana())
+
+
+    def __repr__(self):
+        return self.__str__()
+
+
+
 
     def known_as(self):
         return "{} the {}".format(self.name, self.title)
@@ -46,6 +58,7 @@ class Hero:
 
     def get_mana(self):
         return self.__mana
+
 
     def is_alive(self):
         return self.get_health() > 0
@@ -80,13 +93,13 @@ class Hero:
         self.set_mana(mana_points)
         return True
 
-    def equip(weapon):
+    def equip(self, weapon):
         self.weapon = weapon
 
-    def learn(spell):
+    def learn(self, spell):
         self.spell = spell
 
-    def attack(by = ""):# weapon or spell
+    def attack(self, by = ""):# weapon or spell
         if by not in ("weapon", "spell"):
             raise ValueError("Bad input for attack parameter")
 
@@ -98,6 +111,24 @@ class Hero:
 
         if by == "spell":
             return self.spell.damage
+
+    def weapon_to_fight(self):
+        if self.spell is None and self.weapon is None:
+            raise Exception("No fight weapon!")
+
+        if self.spell is None and self.weapon is not None:
+            return self.weapon
+
+        if self.spell is not None and self.weapon is None:
+            return self.spell
+
+        if self.spell.damage == self.weapon.damage:
+            return self.spell
+
+        if self.spell.damage > self.weapon.damage:
+            return self.spell
+
+        return self.weapon
 
 
 
