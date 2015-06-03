@@ -59,3 +59,15 @@ class Enemy:
 
         self.set_health(-damage_points)
 
+def main():
+    ana = Enemy(health=50, mana=30, damage=7)
+    print(ana.get_health())
+    print(ana.get_mana())
+    print(ana.is_alive())
+    ana.take_damage(30)
+    print(ana.get_health())
+#    print(ana.take_healing(10))
+#    print(ana.get_health())
+
+if __name__ == '__main__':
+    main()
