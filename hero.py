@@ -19,13 +19,11 @@ class Hero:
         self.treasure_spell = ''
 
     def __str__(self):
-        return "Hero(health={}, mana={})".format(self.get_health(), self.get_mana())
+        return "Hero(name={}, health={}, mana={})".format(self.name+ '' + self.title, self.get_health(), self.get_mana())
 
 
     def __repr__(self):
         return self.__str__()
-
-
 
 
     def known_as(self):
@@ -103,7 +101,7 @@ class Hero:
         if by not in ("weapon", "spell"):
             raise ValueError("Bad input for attack parameter")
 
-        if self.weapon is None or self.spell is None:
+        if self.weapon is None and self.spell is None:
             return 0
 
         if by == "weapon":
