@@ -2,6 +2,7 @@ from hero import Hero
 from enemy import Enemy
 from fight import Fight
 from weapon import Weapon
+from spell import Spell
 from random import choice
 
 class Dungeon:
@@ -36,6 +37,8 @@ class Dungeon:
     def get_path(self):
         return self.__path
 
+    def save_to_file(self, map):
+        pass
 
     def load_from_file(self, filename):
         try:
@@ -52,18 +55,25 @@ class Dungeon:
         for row in self.map:
             print(','.join(row).replace(',', ''))
 
-    def spawn(self, some_hero):
-        self.hero = some_hero
+    def get_spawning_points(self):
+        points = []
         for i in range(self.__ROWS):
             for j in range(self.__COLS):
-                    if self.map[i][j] == Dungeon.SPAWNING_POINT:
-                        self.map[i][j] = Dungeon.HERO
-                        self.set_curnt_position(i, j)
-                        self.__path.append([i, j])
-                        break
-            break
-        # if Dungeon.SPAWNING_POINT not in self.map:
-        #     raise Exception("No spawning point on the map!")
+                if self.map[i][j] == Dungeon.SPAWNING_POINT:
+                    points.append((i, j))
+
+        return points
+
+    def spawn(self, some_hero):
+        if self.get_spawning_points == []:
+            print("{} cannot be spawned.".format(str(some_hero)))
+
+        self.hero = some_hero
+        i = self.get_spawning_points().pop(0)[0]
+        j = self.get_spawning_points().pop(0)[1]
+        self.set_curnt_position(i, j)
+        self.__path.append([i, j])
+
 
     def move_hero(self, direction):
 
@@ -91,6 +101,9 @@ class Dungeon:
             self.hero.set_mana(self.hero.mana_regeneration_rate)
             return True
 
+        if self.get_curnt_position() == Dungeon.EXIT:
+            print("Bravo, Hero! You've just got out of the dungeon!")
+
         if self.get_curnt_position() == Dungeon.TREASURE:
             found_tresure = self.pick_treasure()
             print("Found treasure {}!".format(found_tresure))
@@ -98,8 +111,7 @@ class Dungeon:
         if self.get_curnt_position() == Dungeon.ENEMY:
             print("A fight was started between our {} and {}".format(\
                 repr(self.hero), repr(self.enemy)))
-            f = Fight(self.hero, self.enemy)
-            f.fight(self.hero.weapon_to_fight())
+            Fight(self.hero, self.enemy).fight(self.hero.weapon_to_fight())
 
         self.hero.set_mana(self.hero.mana_regeneration_rate)
         self.__update_map()
@@ -121,7 +133,7 @@ class Dungeon:
         self.map[self.__path[len(self.__path) - 1][0]][self.__path[len(self.__path) - 1][1]] = '.'
         self.__path.append(self.__coords)
 
-    def hero_attack(by=""):
+    def hero_attack(self, by=""):
         if by == 'weapon' and self.hero.weapon is None:
             raise Exception("Hero cannot attack by weapon")
 
@@ -129,44 +141,49 @@ class Dungeon:
             raise Exception("Hero cannot attack by spell")
 
         if by == 'spell' and self.hero.spell is not None:
-            for i in range(self.__coords[0] + 1, self.__coords[0]+1+self.hero.spell.cast_range**2):
-                if self.map[i][self.__coords[1]] == Dungeon.WALKABLE_PATH:
-                    continue
+            for i in range(self.__coords[1]+1, self.__coords[1]+1+self.hero.spell.cast_range**2):
+                try:
+                    print(self.map[self.__coords[0]][i], self.__coords[1], self.__coords[1]+1+self.hero.spell.cast_range**2)
+                    if self.map[self.__coords[0]][i] == Dungeon.WALKABLE_PATH:
+                        continue
 
-                elif self.map[i][self.__coords[1]] == Dungeon.ENEMY:
-                    print("A fight is started between our Hero(health=100, mana=100) and Enemey(health=100, mana=100, damage=20)")
-                    f = Fight(self.hero, self.enemy)
-                    f.fight(self.hero.spell)
-                    return True
-
-            print("Nothing in casting range {}".format(self.spell.cast_range))
-            return False
+                    elif self.map[self.__coords[0]][i] == Dungeon.ENEMY:
+                        print("A fight is started between our {} and {}".format(repr(self.hero), repr(self.enemy)))
+                        f = Fight(self.hero, self.enemy)
+                        f.fight(self.hero.weapon_to_fight())
+                        break
+                    print("Nothing in casting range {}".format(self.hero.spell.cast_range))
+                    return False
+                except IndexError:
+                    break
 
         if by == 'weapon' and self.hero.weapon is not None:
-            print("A fight is started between our Hero(health=100, mana=100) and Enemey(health=100, mana=100, damage=20)")
-            Fight.fight(self.hero.weapon)
-
-
-
+            print("A fight is started between our {} and {}".format(repr(self.hero), repr(self.enemy)))
+            Fight(self.hero, self.enemy).fight(self.hero.weapon_to_fight())
+            return True
 
 
 def main():
     m = Dungeon('level1.txt')
-    ana = Hero (name="Ana", title="Cloud", health=5000, mana=330, mana_regeneration_rate=7)
-    enemy = Enemy(health = 60, mana=100, damage=10)
+    ana = Hero (name="Ana", title="Cloud", health=100, mana=330, mana_regeneration_rate=7)
+    enemy = Enemy(health = 160, mana=100, damage=20)
     w = Weapon(name="The Axe of Destiny", damage=20)
+    s = Spell(name="Fireball", damage=20, mana_cost=10, cast_range=3)
     ana.equip(w)
+    ana.learn(s)
     m.spawn(ana)
     m.hero = ana
     m.enemy = enemy
     m.move_hero('right')
-    print(m.move_hero('down'))
-    print(m.get_path())
-    print(m.move_hero('down'))
-    print(m.move_hero('down'))
-    print(m.move_hero('right'))
+
     m.print_map()
-    print(m.get_path())
+    m.move_hero('down')
+    m.print_map()
+    m.move_hero('down')
+    m.print_map()
+    m.move_hero('down')
+    m.print_map()
+    m.hero_attack(by='spell')
 
 
 if __name__ == '__main__':
